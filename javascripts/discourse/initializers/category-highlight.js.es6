@@ -39,7 +39,7 @@ export default {
         if (list.length) {
           for (let item of list) {
             let parts = item.split('~');
-            let headerText = parts[3];
+            let headerText = site.mobileView ? parts[4] : parts[3];
             
             if (headerText) {
               let slugParts = parts[0].split('/');
