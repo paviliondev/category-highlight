@@ -39,7 +39,9 @@ export default {
         if (list.length) {
           for (let item of list) {
             let parts = item.split('~');
-            let headerText = site.mobileView ? parts[4] : parts[3];
+            let longText = parts[3];
+            let shortText = parts[4];
+            let headerText = site.mobileView ? longText : shortText;
             
             if (headerText) {
               let slugParts = parts[0].split('/');
@@ -59,7 +61,8 @@ export default {
                 result = helper.attach('link', {
                   className,
                   href: category.url,
-                  rawLabel: replaceEmoji(headerText) 
+                  rawLabel: replaceEmoji(headerText),
+                  title: longText
                 });
                 
                 break;
