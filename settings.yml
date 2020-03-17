@@ -2,4 +2,4 @@ highlight_categories:
   default: ""
   type: list
   description:
-    en: category_name:background_hex:text_hex:header_enabled e.g premium:#FFDF00:#fff:true
+    en: "category_name~background_hex~text_hex~header_label e.g knowledge~#FFDF00~#fff~Check out our new Knowledge Base :book:"

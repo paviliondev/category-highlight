@@ -2,6 +2,7 @@ import { withPluginApi } from 'discourse/lib/plugin-api';
 import Category from 'discourse/models/category';
 import { highlightClass } from '../lib/category-highlight-utilities';
 import { default as computed } from 'discourse-common/utils/decorators';
+import { replaceEmoji } from "discourse/widgets/emoji";
 
 export default {
   name: 'category-highlight',
@@ -37,10 +38,10 @@ export default {
         
         if (list.length) {
           for (let item of list) {
-            let parts = item.split(':');
-            let enabled = parts[3];
+            let parts = item.split('~');
+            let headerText = parts[3];
             
-            if (enabled) {
+            if (headerText) {
               let slugParts = parts[0].split('/');
               let slug = slugParts[0];
               
@@ -58,7 +59,7 @@ export default {
                 result = helper.attach('link', {
                   className,
                   href: category.url,
-                  rawLabel: category.name 
+                  rawLabel: replaceEmoji(headerText) 
                 });
                 
                 break;

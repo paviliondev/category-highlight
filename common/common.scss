@@ -15,7 +15,7 @@
 }
 
 @each $category in str-split($highlight_categories, '|') {
-  $parts: str-split($category, ':');
+  $parts: str-split($category, '~');
   
   @if length($parts) > 1 {
     .badge-wrapper[class*=" #{nth($parts, 1)} "],
@@ -82,4 +82,5 @@
 
 .highlight-category-button .d-label {
   vertical-align: middle;
+  font-weight: 600;
 }
