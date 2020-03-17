@@ -41,7 +41,7 @@ export default {
             let parts = item.split('~');
             let longText = parts[3];
             let shortText = parts[4];
-            let headerText = site.mobileView ? longText : shortText;
+            let headerText = site.mobileView ? shortText : longText;
             
             if (headerText) {
               let slugParts = parts[0].split('/');
@@ -62,7 +62,9 @@ export default {
                   className,
                   href: category.url,
                   rawLabel: replaceEmoji(headerText),
-                  title: longText
+                  attributes: {
+                    title: longText
+                  }
                 });
                 
                 break;
