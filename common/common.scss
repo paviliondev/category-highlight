@@ -1,0 +1,59 @@
+@function str-split($string, $separator) {
+  $split-arr: ();
+  $index: str-index($string, $separator);
+  
+  @while $index != null {
+    $item: str-slice($string, 1, $index - 1);
+    $split-arr: append($split-arr, $item);
+    $string: str-slice($string, $index + 1);
+    $index: str-index($string, $separator);
+  }
+  
+  $split-arr: append($split-arr, $string);
+  
+  @return $split-arr;
+}
+
+@each $category in str-split($highlight_categories, '|') {
+  $parts: str-split($category, ':');
+  
+  @if length($parts) > 1 {
+    .badge-wrapper[class*=" #{nth($parts, 1)} "],
+    .category-title-link-component[class*=" #{nth($parts, 1)} "] span.category-name,
+    .list-controls .combo-box .category-drop-header[class*=" #{nth($parts, 1)} "] .badge-wrapper,
+    .select-kit.combo-box.category-drop .category-row[class*=" #{nth($parts, 1)} "] .badge-wrapper {      
+      position: relative;
+      overflow: visible;
+      
+      &:before {
+        content: "";
+        background: nth($parts, 2);
+        position: absolute;
+        width: calc(100% + 8px);
+        height: calc(100% + 4px);
+        left: -4px;
+        right: -4px;
+        height: -2px;
+        bottom: -2px;
+      }
+      
+      & * {
+        z-index: 1;
+      }
+    }
+
+    .widget-link.btn.highlight-category-button[class*=" #{nth($parts, 1)} "] {
+      background: nth($parts, 2);
+    }
+  }
+  
+  @if length($parts) > 2 {
+    .badge-wrapper[class*=" #{nth($parts, 1)} "] span.category-name,
+    .category-title-link-component[class*=" #{nth($parts, 1)} "] span.category-name,
+    .list-controls .combo-box .category-drop-header[class*=" #{nth($parts, 1)} "] span.category-name,
+    .select-kit.combo-box.category-drop .category-row[class*=" #{nth($parts, 1)} "] span.category-name,
+    .widget-link.btn.highlight-category-button[class*=" #{nth($parts, 1)} "] {
+      color: nth($parts, 3);
+    }
+  }
+}

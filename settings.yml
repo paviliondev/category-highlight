@@ -1,0 +1,5 @@
+highlight_categories:
+  default: ""
+  type: list
+  description:
+    en: category_name:background_hex:text_hex:header_enabled e.g premium:#FFDF00:#fff:true
