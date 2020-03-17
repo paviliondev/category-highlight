@@ -45,6 +45,10 @@
     .extra-info-wrapper .categories-wrapper .badge-wrapper[class*=" #{nth($parts, 1)} "]:before {
       top: 0;
     }
+    
+    .category-title-link-component[class*=" #{nth($parts, 1)} "] span.category-name:before {
+      z-index: -1;
+    }
 
     .widget-link.btn.highlight-category-button[class*=" #{nth($parts, 1)} "],
     .list-controls .combo-box .category-drop-header[class*=" #{nth($parts, 1)} "] {
