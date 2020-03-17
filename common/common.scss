@@ -53,10 +53,15 @@
   }
   
   @if length($parts) > 2 {
-    .badge-wrapper[class*=" #{nth($parts, 1)} "] span.category-name,
-    .category-title-link-component[class*=" #{nth($parts, 1)} "] span.category-name,
-    .list-controls .combo-box .category-drop-header[class*=" #{nth($parts, 1)} "] span.category-name,
-    .select-kit.combo-box.category-drop .category-row[class*=" #{nth($parts, 1)} "] span.category-name,
+    .badge-wrapper[class*=" #{nth($parts, 1)} "],
+    .category-title-link-component[class*=" #{nth($parts, 1)} "],
+    .list-controls .combo-box .category-drop-header[class*=" #{nth($parts, 1)} "],
+    .select-kit.combo-box.category-drop .category-row[class*=" #{nth($parts, 1)} "] {
+      span.category-name, .d-icon, span.topic-count {
+        color: nth($parts, 3);
+      }
+    }
+    
     .widget-link.btn.highlight-category-button[class*=" #{nth($parts, 1)} "] {
       color: nth($parts, 3);
     }
