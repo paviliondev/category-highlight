@@ -83,6 +83,11 @@
 .highlight-category-button .d-label {
   vertical-align: middle;
   font-weight: 600;
+  
+  span {
+    display: inline-flex;
+    align-items: center;
+  }
 }
 
 a.highlight-category-button + a {
