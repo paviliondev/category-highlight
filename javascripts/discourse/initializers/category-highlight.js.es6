@@ -2,7 +2,8 @@ import { withPluginApi } from 'discourse/lib/plugin-api';
 import Category from 'discourse/models/category';
 import { highlightClass } from '../lib/category-highlight-utilities';
 import { default as computed } from 'discourse-common/utils/decorators';
-import { replaceEmoji } from "discourse/widgets/emoji";
+import RawHtml from "discourse/widgets/raw-html";
+import { emojiUnescape } from "discourse/lib/text";
 
 export default {
   name: 'category-highlight',
@@ -61,9 +62,9 @@ export default {
                 result = helper.attach('link', {
                   className,
                   href: category.url,
-                  rawLabel: replaceEmoji(headerText),
+                  contents: () => new RawHtml({ html: `<span>${emojiUnescape(headerText)}</span>` }),
                   attributes: {
-                    title: longText
+                    title: $('<textarea />').html(longText).text()
                   }
                 });
                 
