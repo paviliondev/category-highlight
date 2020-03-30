@@ -35,7 +35,7 @@ export default {
       
       api.decorateWidget('header-buttons:before', helper => {
         let list = settings.highlight_categories.split('|');
-        let result;
+        let result = [];
         
         if (list.length) {
           for (let item of list) {
@@ -59,14 +59,14 @@ export default {
               if (category) {
                 let className = `btn highlight-category-button ${highlightClass(category)} `;
                 
-                result = helper.attach('link', {
+                result.push(helper.attach('link', {
                   className,
                   href: category.url,
                   contents: () => new RawHtml({ html: `<span>${emojiUnescape(headerText)}</span>` }),
                   attributes: {
                     title: $('<textarea />').html(longText).text()
                   }
-                });
+                }));
               }
             }
           }
