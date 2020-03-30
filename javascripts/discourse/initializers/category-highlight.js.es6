@@ -67,8 +67,6 @@ export default {
                     title: $('<textarea />').html(longText).text()
                   }
                 });
-                
-                break;
               }
             }
           }
