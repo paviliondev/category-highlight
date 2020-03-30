@@ -80,9 +80,14 @@
   }
 }
 
-.highlight-category-button span > * {
-  display: inline-block;
-  vertical-align: middle;
+.highlight-category-button {
+  min-height: 32px;
+}
+
+.highlight-category-button,
+.highlight-category-button span {
+  display: flex;
+  align-items: center;
 }
 
 a.highlight-category-button + a {
