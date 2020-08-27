@@ -96,17 +96,17 @@ export default {
               }
                           
               const category = Category.findBySlug(slug, parentSlug);
-                          
+
               if (category) {
                 let className = `btn highlight-category-button ${highlightClass(category)} `;
+                const contents = parts.slice(5).map(function(link){
+                      return { id: Math.floor(Math.random() * 100), html: `<a href=${link}>${link}</a>` }
+                    });
 
-                result.push(helper.attach('highlighter-dropdown', {
+                    result.push(helper.attach('highlighter-dropdown', {
                   id: `category-highlighter-${category.slug}`,
                   translatedLabel: `<span>${emojiUnescape(headerText)}</span>`,
-                  content:[
-                    { id: 2, translatedLabel: "FooBar" },
-                    { id: 4, html: "<b>foo</b>" }
-                  ],
+                  content:contents,
                   options: {
                     headerClass: className,
                   },
