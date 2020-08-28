@@ -4,6 +4,8 @@ import { highlightClass } from '../lib/category-highlight-utilities';
 import { default as computed } from 'discourse-common/utils/decorators';
 import RawHtml from "discourse/widgets/raw-html";
 import { emojiUnescape } from "discourse/lib/text";
+import { WidgetDropdownHeaderClass, WidgetDropdownClass } from "discourse/widgets/widget-dropdown";
+import hbs from "discourse/widgets/hbs-compiler";
 
 export default {
   name: 'category-highlight',
@@ -32,7 +34,45 @@ export default {
         @computed('category')
         highlightClass: (category) => highlightClass(category)
       });
-      
+
+      WidgetDropdownHeaderClass['template'] = hbs`
+        {{#if attrs.icon}}
+          {{d-icon attrs.icon}}
+        {{/if}}
+        <span class="label">
+          {{{transformed.label}}}
+        </span>
+        {{#if attrs.caret}}
+          {{d-icon "caret-down"}}
+        {{/if}}`;
+
+      WidgetDropdownClass['template'] = hbs`
+        {{#if attrs.content}}
+        {{attach
+          widget="highlighter-dropdown-header"
+          attrs=(hash
+            icon=attrs.icon
+            label=attrs.label
+            translatedLabel=attrs.translatedLabel
+            class=this.transformed.options.headerClass
+            caret=this.transformed.options.caret
+          )
+        }}
+        {{#if this.state.opened}}
+          {{attach
+            widget="widget-dropdown-body"
+            attrs=(hash
+              id=attrs.id
+              class=this.transformed.options.bodyClass
+              content=attrs.content
+            )
+          }}
+        {{/if}}
+      {{/if}}`;
+
+    api.createWidget('highlighter-dropdown-header', WidgetDropdownHeaderClass);
+    api.createWidget('highlighter-dropdown', WidgetDropdownClass);
+
       api.decorateWidget('header-buttons:before', helper => {
         let list = settings.highlight_categories.split('|');
         let result = [];
@@ -58,15 +98,35 @@ export default {
                           
               if (category) {
                 let className = `btn highlight-category-button ${highlightClass(category)} `;
-                
-                result.push(helper.attach('link', {
-                  className,
-                  href: category.url,
-                  contents: () => new RawHtml({ html: `<span>${emojiUnescape(headerText)}</span>` }),
-                  attributes: {
-                    title: $('<textarea />').html(longText).text()
+
+                if(parts[5]) {
+                  const contents = [];
+                  const linkData = parts.slice(5);
+
+                  for (let i=0 ; i < linkData.length ; i+=2) {
+                   contents.push({id: Math.floor(Math.random() * 100), html: `<a href=${linkData[i]}>${linkData[i+1]}</a>` })
                   }
-                }));
+                  result.push(helper.attach('highlighter-dropdown', {
+                    id: `category-highlighter-${category.slug}`,
+                    translatedLabel: `<span>${emojiUnescape(headerText)}</span>`,
+                    content:contents,
+                    class: 'highlighter-dropdown',
+                    options: {
+                      headerClass: className,
+                    }
+                  }));
+
+                } else {
+                  result.push(helper.attach('link', {
+                    className,
+                    href: category.url,
+                    contents: () => new RawHtml({ html: `<span>${emojiUnescape(headerText)}</span>` }),
+                    attributes: {
+                      title: $('<textarea />').html(longText).text()
+                    }
+                  }));
+                }
+
               }
             }
           }
