@@ -1,6 +1,6 @@
 import { withPluginApi } from 'discourse/lib/plugin-api';
 import Category from 'discourse/models/category';
-import { highlightClass } from '../lib/category-highlight-utilities';
+import { highlightClass, pushItemToResult, createParentItem } from '../lib/category-highlight-utilities';
 import { default as computed } from 'discourse-common/utils/decorators';
 import RawHtml from "discourse/widgets/raw-html";
 import { emojiUnescape } from "discourse/lib/text";
@@ -36,18 +36,25 @@ export default {
         highlightClass: (category) => highlightClass(category)
       });
 
-      WidgetDropdownHeaderClass['template'] = hbs`
-        {{#if attrs.icon}}
-          {{d-icon attrs.icon}}
-        {{/if}}
-        <span class="label">
-          {{{transformed.label}}}
-        </span>
-        {{#if attrs.caret}}
-          {{d-icon "caret-down"}}
-        {{/if}}`;
+      const customDropdownHeaderClass = {};
+      Object.assign(customDropdownHeaderClass, WidgetDropdownHeaderClass);
 
-      WidgetDropdownClass['template'] = hbs`
+        customDropdownHeaderClass['template'] = hbs`
+         {{#if attrs.icon}}
+           {{d-icon attrs.icon}}
+         {{/if}}
+         <span class="label">
+           {{{transformed.label}}}
+         </span>
+         {{#if attrs.caret}}
+           {{d-icon "caret-down"}}
+         {{/if}}`;
+
+
+      const customDropdownClass = {};
+      Object.assign(customDropdownClass, WidgetDropdownClass);
+
+      customDropdownClass['template']  = hbs`
         {{#if attrs.content}}
         {{attach
           widget="highlighter-dropdown-header"
@@ -71,8 +78,8 @@ export default {
         {{/if}}
       {{/if}}`;
 
-    api.createWidget('highlighter-dropdown-header', WidgetDropdownHeaderClass);
-    api.createWidget('highlighter-dropdown', WidgetDropdownClass);
+    api.createWidget('highlighter-dropdown-header', customDropdownHeaderClass);
+    api.createWidget('highlighter-dropdown', customDropdownClass);
 
       api.decorateWidget('header-buttons:before', helper => {
         let list = settings.highlight_categories.split('|');
@@ -99,52 +106,14 @@ export default {
                           
               if (category) {
                 let className = `btn highlight-category-button ${highlightClass(category)} `;
+                let parentCategory;
+                let isDropdownItem = parts[5] && (parentCategory = Category.findBySlug(parts[5]));
 
-                if(parts[5]) {
-                  // if this category is accessible then current item 
-                  //should become a dropdown item
-                  const contents = [];
-                  const parent = Category.findBySlug(parts[5]);
-                  if(parent) {
-                    let catLink  = parts[6] || category.url;
-
-                    let dropdownItem = {
-                      id: Math.floor(Math.random() * 100),
-                      html: `<a href=${catLink}>${emojiUnescape(headerText)}</a>`,
-                      link: catLink
-                    };
-
-                    let parentItem;
-                    if(parentItem = result[parent.slug]) {
-                      parentItem['contents'].push(dropdownItem);
-                    } else {
-                      result[parent.slug] = {
-                        className,
-                        contents: [],
-                        category,
-                        html: `<span>${emojiUnescape(headerText)}</span>`,
-                        attributes: {
-                          title: $('<textarea />').html(longText).text()
-                        }
-                      }
-                    }
-                   }
-
+                if(isDropdownItem) {
+                  pushItemToResult(result, category, parentCategory, headerText, parts[6]);
                 } else {
-                  if(!result[category.slug]) {
-                    result[category.slug] = {
-                      className,
-                      contents: [],
-                      category,
-                      link: parts[6],
-                      html: `<span>${emojiUnescape(headerText)}</span>`,
-                      attributes: {
-                        title: $('<textarea />').html(longText).text()
-                      }
-                    }
-                  }
+                  createParentItem(result, category, className, headerText, longText,  parts[6]);
                 }
-
               }
             }
           }
@@ -152,7 +121,7 @@ export default {
 
         for(let item in result) {
           let currentItem = result[item];
-          if(currentItem.contents.length) {
+          if(currentItem.contents && currentItem.contents.length) {
             // dropdown
             final.push(helper.attach('highlighter-dropdown', {
                     id: `category-highlighter-${currentItem.category.slug}`,
@@ -170,7 +139,7 @@ export default {
             //link
             final.push(helper.attach('link', {
                     className: currentItem.className,
-                    href: currentItem.link || currentItem.category.url,
+                    href: currentItem.link,
                     contents: () => new RawHtml({ html: currentItem.html }),
                     attributes: currentItem.attributes
                   }));
