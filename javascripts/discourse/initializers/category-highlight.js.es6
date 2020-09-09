@@ -6,6 +6,7 @@ import RawHtml from "discourse/widgets/raw-html";
 import { emojiUnescape } from "discourse/lib/text";
 import { WidgetDropdownHeaderClass, WidgetDropdownClass } from "discourse/widgets/widget-dropdown";
 import hbs from "discourse/widgets/hbs-compiler";
+import DiscourseURL from "discourse/lib/url";
 
 export default {
   name: 'category-highlight',
@@ -75,8 +76,8 @@ export default {
 
       api.decorateWidget('header-buttons:before', helper => {
         let list = settings.highlight_categories.split('|');
-        let result = [];
-        
+        let result = {};
+        let final = [];
         if (list.length) {
           for (let item of list) {
             let parts = item.split('~');
@@ -101,38 +102,81 @@ export default {
 
                 if(parts[5]) {
                   const contents = [];
-                  const linkData = parts.slice(5);
+                  const parent = Category.findBySlug(parts[5]);
+                  if(parent) {
+                    let catLink  = parts[6] || category.url;
 
-                  for (let i=0 ; i < linkData.length ; i+=2) {
-                   contents.push({id: Math.floor(Math.random() * 100), html: `<a href=${linkData[i]}>${linkData[i+1]}</a>` })
-                  }
-                  result.push(helper.attach('highlighter-dropdown', {
-                    id: `category-highlighter-${category.slug}`,
-                    translatedLabel: `<span>${emojiUnescape(headerText)}</span>`,
-                    content:contents,
-                    class: 'highlighter-dropdown',
-                    options: {
-                      headerClass: className,
+                    let dropdownItem = {
+                      id: Math.floor(Math.random() * 100),
+                      html: `<a href=${catLink}>${emojiUnescape(headerText)}</a>`,
+                      link: catLink
                     }
-                  }));
+
+                    let parentItem;
+                    if(parentItem = result[parent.slug]) {
+                      parentItem['contents'].push(dropdownItem);
+                    } else {
+                      result[parent.slug] = {
+                        className,
+                        contents: [],
+                        category,
+                        html: `<span>${emojiUnescape(headerText)}</span>`,
+                        attributes: {
+                          title: $('<textarea />').html(longText).text()
+                        }
+                      }
+                    }
+                   }
 
                 } else {
-                  result.push(helper.attach('link', {
-                    className,
-                    href: category.url,
-                    contents: () => new RawHtml({ html: `<span>${emojiUnescape(headerText)}</span>` }),
-                    attributes: {
-                      title: $('<textarea />').html(longText).text()
+                  if(!result[category.slug]) {
+                    result[category.slug] = {
+                      className,
+                      contents: [],
+                      category,
+                      link:parts[6],
+                      html: `<span>${emojiUnescape(headerText)}</span>`,
+                      attributes: {
+                        title: $('<textarea />').html(longText).text()
+                      }
                     }
-                  }));
+                  }
                 }
 
               }
             }
           }
         }
-        
-        return result;
+
+        for(let item in result) {
+          let currentItem = result[item];
+          if(currentItem.contents.length) {
+            // dropdown
+            console.log(currentItem, 'dropdown')
+            final.push(helper.attach('highlighter-dropdown', {
+                    id: `category-highlighter-${currentItem.category.slug}`,
+                    translatedLabel: currentItem.html,
+                    content:currentItem.contents,
+                    class: 'highlighter-dropdown',
+                    options: {
+                      headerClass: currentItem.className,
+                    },
+                    onChange(item){
+                      DiscourseURL.routeTo(item.link);
+                    }
+                  }));
+          } else {
+            //link
+                        console.log(currentItem, 'link')
+            final.push(helper.attach('link', {
+                    className: currentItem.className,
+                    href: currentItem.link || currentItem.category.url,
+                    contents: () => new RawHtml({ html: currentItem.html }),
+                    attributes: currentItem.attributes
+                  }));
+          }
+        }
+        return final;
       })
     });
   }
