@@ -101,6 +101,8 @@ export default {
                 let className = `btn highlight-category-button ${highlightClass(category)} `;
 
                 if(parts[5]) {
+                  // if this category is accessible then current item 
+                  //should become a dropdown item
                   const contents = [];
                   const parent = Category.findBySlug(parts[5]);
                   if(parent) {
@@ -110,7 +112,7 @@ export default {
                       id: Math.floor(Math.random() * 100),
                       html: `<a href=${catLink}>${emojiUnescape(headerText)}</a>`,
                       link: catLink
-                    }
+                    };
 
                     let parentItem;
                     if(parentItem = result[parent.slug]) {
@@ -134,7 +136,7 @@ export default {
                       className,
                       contents: [],
                       category,
-                      link:parts[6],
+                      link: parts[6],
                       html: `<span>${emojiUnescape(headerText)}</span>`,
                       attributes: {
                         title: $('<textarea />').html(longText).text()
@@ -152,7 +154,6 @@ export default {
           let currentItem = result[item];
           if(currentItem.contents.length) {
             // dropdown
-            console.log(currentItem, 'dropdown')
             final.push(helper.attach('highlighter-dropdown', {
                     id: `category-highlighter-${currentItem.category.slug}`,
                     translatedLabel: currentItem.html,
@@ -167,7 +168,6 @@ export default {
                   }));
           } else {
             //link
-                        console.log(currentItem, 'link')
             final.push(helper.attach('link', {
                     className: currentItem.className,
                     href: currentItem.link || currentItem.category.url,
@@ -176,6 +176,7 @@ export default {
                   }));
           }
         }
+
         return final;
       })
     });
