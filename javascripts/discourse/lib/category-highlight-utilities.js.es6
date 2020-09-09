@@ -15,9 +15,11 @@ function pushItemToResult(result, category, parentCategory, headerText, link) {
 		result[parentCategory.slug] = {contents: []};
 	}
 
+	result[parentCategory.slug]['contents'] = result[parentCategory.slug]['contents'] || [];
+
 		result[parentCategory.slug]['contents'].push({
 			 id: Math.floor(Math.random() * 100),
-			 html: `<a href=${link}>${emojiUnescape(headerText)}</a>`,
+			 html: `<span>${emojiUnescape(headerText)}</span>`,
 			 link: link || category.url
 			});
 	}
