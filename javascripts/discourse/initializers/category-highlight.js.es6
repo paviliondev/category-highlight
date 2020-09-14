@@ -39,16 +39,16 @@ export default {
       const customDropdownHeaderClass = {};
       Object.assign(customDropdownHeaderClass, WidgetDropdownHeaderClass);
 
-        customDropdownHeaderClass['template'] = hbs`
-         {{#if attrs.icon}}
-           {{d-icon attrs.icon}}
-         {{/if}}
-         <span class="label">
-           {{{transformed.label}}}
-         </span>
-         {{#if attrs.caret}}
-           {{d-icon "caret-down"}}
-         {{/if}}`;
+      customDropdownHeaderClass['template'] = hbs`
+       {{#if attrs.icon}}
+         {{d-icon attrs.icon}}
+       {{/if}}
+       <span class="label">
+         {{{transformed.label}}}
+       </span>
+       {{#if attrs.caret}}
+         {{d-icon "caret-down"}}
+       {{/if}}`;
 
 
       const customDropdownClass = {};
@@ -78,13 +78,14 @@ export default {
         {{/if}}
       {{/if}}`;
 
-    api.createWidget('highlighter-dropdown-header', customDropdownHeaderClass);
-    api.createWidget('highlighter-dropdown', customDropdownClass);
+      api.createWidget('highlighter-dropdown-header', customDropdownHeaderClass);
+      api.createWidget('highlighter-dropdown', customDropdownClass);
 
       api.decorateWidget('header-buttons:before', helper => {
         let list = settings.highlight_categories.split('|');
         let result = {};
         let final = [];
+        
         if (list.length) {
           for (let item of list) {
             let parts = item.split('~');
@@ -119,30 +120,35 @@ export default {
           }
         }
 
-        for(let item in result) {
+        for (let item in result) {
           let currentItem = result[item];
-          if(currentItem.contents && currentItem.contents.length) {
+          
+          if (currentItem.contents && currentItem.contents.length) {
             // dropdown
-            final.push(helper.attach('highlighter-dropdown', {
-                    id: `category-highlighter-${currentItem.category.slug}`,
-                    translatedLabel: currentItem.html,
-                    content:currentItem.contents,
-                    class: 'highlighter-dropdown',
-                    options: {
-                      headerClass: currentItem.className,
-                    },
-                    onChange(item){
-                      DiscourseURL.routeTo(item.link);
-                    }
-                  }));
+            final.push(
+              helper.attach('highlighter-dropdown', {
+                id: `category-highlighter-${currentItem.category.slug}`,
+                translatedLabel: currentItem.html,
+                content:currentItem.contents,
+                class: 'highlighter-dropdown',
+                options: {
+                  headerClass: currentItem.className,
+                },
+                onChange(item){
+                  DiscourseURL.routeTo(item.link);
+                }
+              })
+            );
           } else {
             //link
-            final.push(helper.attach('link', {
-                    className: currentItem.className,
-                    href: currentItem.link,
-                    contents: () => new RawHtml({ html: currentItem.html }),
-                    attributes: currentItem.attributes
-                  }));
+            final.push(
+              helper.attach('link', {
+                className: currentItem.className,
+                href: currentItem.link,
+                contents: () => new RawHtml({ html: currentItem.html }),
+                attributes: currentItem.attributes
+              })
+            );
           }
         }
 
