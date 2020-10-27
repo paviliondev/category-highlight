@@ -2,4 +2,4 @@ highlight_categories:
   default: ""
   type: list
   description:
-    en: "category_slug~background~text_color~header_label~header_label_mobile"
+    en: "category_slug~background~text_color~header_label~header_label_mobile~parent_slug~alternate_link"
